@@ -25,9 +25,11 @@ typedef unsigned char uchar;
 //def macros
 #ifndef _nt_setbit
 #define _nt_setbit(n,bitn,bit)	\
-  {uint pwrd = (powi(2,bitn));\
-  if(getbit(*n,bitn) != bit)\
+  {uint pwrd = (powi(2,bitn));if(_nt_getbit(*n,bitn) != bit)\
   *n += ((*n & pwrd) >> bitn) ? (-1 * pwrd) : (pwrd);}
+#endif
+#ifndef _nt_getbit
+#define _nt_getbit(n,bitn)	((n & (powi(2,bitn))) >> bitn)
 #endif
 
 //def prots

@@ -90,7 +90,7 @@ int main(void) {
   uint lcounter, rcounter, counter;
   const uint l_size = lenS(M_left);
   const uint r_size = lenS(M_right);
-  lint f = 0;
+  bool f = 0;
   lcounter = rcounter = counter = 0;
 
 
@@ -98,9 +98,9 @@ int main(void) {
   setbit((lint*)&f,1,0b1);
   setbit((lint*)&f,2,0b1);
 
-#define lhasch	getbit((lint)f,1)
-#define rhasch	getbit((lint)f,2)
-#define side	getbit((lint)f,0)
+#define lhasch	_nt_getbit(f,1)
+#define rhasch	_nt_getbit(f,2)
+#define side	_nt_getbit(f,0)
 
   while(lhasch || rhasch){
 
@@ -109,7 +109,7 @@ int main(void) {
 	  if(rhasch){	// right side has chars for print
 
 	      printS(&M_right[rcounter], &counter, &rcounter);
-	      if(rcounter >= r_size) setbit((lint*)&f,2,0b0); // right side hasnt chars for print
+	      if(rcounter >= r_size) _nt_setbit(&f,2,0b0); // right side hasnt chars for print
 
 	  }else{
 	      printf(" ");
@@ -121,7 +121,7 @@ int main(void) {
 	  if(lhasch){	// left side has chars for print
 
 	      printS(&M_left[lcounter], &counter, &lcounter);
-	      if(lcounter >= l_size) setbit((lint*)&f,1,0b0); // left side hasnt chars for print
+	      if(lcounter >= l_size) _nt_setbit(&f,1,0b0); // left side hasnt chars for print
 
 	  }else{
 	      printf(" ");
