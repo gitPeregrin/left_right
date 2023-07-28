@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "bits.h"
+
 #define strDEF	"\033[0m"
 #define strRED	"\033[31m"
 #define strBLUE	"\033[34m"
@@ -42,14 +44,16 @@ char * mulS(char * str, int count){ // string multiply
   return result;
 }
 
-uint printS(char * str, uint c){
-  if(*str == -48){
+void printS(char * str, uint * c, uint * lc){
+  if(*str < 0){
+
       char tmp = *(str+2);
       *(str+2) = 0;
       printf("%s",str);
       *(str+2) = tmp;
-      c++;
-      return c;
+      *c = *c + 1;
+      *lc = *lc + 2;
+
   }else if(*str == 27){
       uchar i = 0;
       while( *(str+i) != 109) i++;
@@ -57,14 +61,14 @@ uint printS(char * str, uint c){
       *(str+i+1) = 0;
       printf("%s", str);
       *(str+i+1) = tmp;
-      return c;
+      *lc = *lc + i;
   }else{
       char tmp = *(str+1);
       *(str+1) = 0;
       printf("%s",str);
       *(str+1) = tmp;
-      c++;
-      return c;
+      *c = *c + 1;
+      *lc = *lc + 1;
   }
 }
 
@@ -72,7 +76,6 @@ int main(void) {
 
   char * left = "Левая часть консоли";
   char * right = "Right ""side"" of console.";
-  char * spec = strRED "special" strDEF;
 
 
 
@@ -81,39 +84,63 @@ int main(void) {
   char * M_left = mulS(left,10);
   char * M_right = mulS(right,10);
 
-  char * pS;
 
   enum {
     LEFT , RIGHT
   };
 
   uint lcounter, rcounter, counter;
-  uint l_size, r_size;
-  _Bool side, lHasChars, rHasChars;
+  const uint l_size = lenS(M_left), r_size = lenS(M_right);
+  char f = 0;
   lcounter = rcounter = counter = 0;
-  side = LEFT;
-  lHasChars = rHasChars = 1;
-  l_size = lenS(M_left);
-  r_size = lenS(M_right);
 
 
+  setbit((lint*)&f,0,0b0); //side left
+  setbit((lint*)&f,1,0b1);
+  setbit((lint*)&f,2,0b1);
 
+#define lhasch	getbit((lint)f,1)
+#define rhasch	getbit((lint)f,2)
+#define side	getbit((lint)f,0)
 
-  while(lHasChars || rHasChars){
+  while(lhasch || rhasch){
 
+      if(side){		// side = right
 
+	  if(rhasch){	// right side has chars for print
 
-      printf("%d [%d+%d] L(%d/%d) R(%d/%d) side->%s\n",
+	      printS(&M_right[rcounter], &counter, &rcounter);
+	      if(rcounter >= r_size) setbit((lint*)&f,2,0b0); // right side hasnt chars for print
+
+	  }else{
+	      printf(" ");
+	  }
+
+      }else{		//side = left
+
+	  if(lhasch){	// left side has chars for print
+
+	      printS(&M_left[lcounter], &counter, &lcounter);
+	      if(lcounter >= l_size) setbit((lint*)&f,1,0b0); // left side hasnt chars for print
+
+	  }else{
+	      printf(" ");
+	  }
+
+      }
+
+      printf("%2d [%u+%u] L(%u/%u) R(%u/%u) side->%s\n",
 	     counter,
-	     lHasChars, rHasChars,
+	     getbit((lint)f,1), getbit((lint)f,2),
 	     lcounter,l_size,
 	     rcounter,r_size,
-	     (side == LEFT ? "LEFT" : "RIGHT"));
+	     (getbit((lint)f,0) ? "right" : "left"));
 
-      if(counter > 80) counter = 0;
+      if(counter >= 80) counter = 0;
+      (0 <= counter && counter <= 40) ? \
+	  setbit((lint*)&f,0,0b0) : setbit((lint*)&f,0,0b1);
 
   }
-
 
   //TODO путчар не годится, надо попробовать принтф(%s) через поинтеры
   //	 и временную замену одного символа на \0 и обратно
