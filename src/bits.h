@@ -22,6 +22,14 @@ typedef unsigned int uint;
 typedef unsigned char uchar;
 #endif
 
+//def macros
+#ifndef _nt_setbit
+#define _nt_setbit(n,bitn,bit)	\
+  {uint pwrd = (powi(2,bitn));\
+  if(getbit(*n,bitn) != bit)\
+  *n += ((*n & pwrd) >> bitn) ? (-1 * pwrd) : (pwrd);}
+#endif
+
 //def prots
 uint 	powi	(uchar, uchar);
 bool	getbit	(lint, uchar);
@@ -44,7 +52,7 @@ bool getbit(lint num, uchar b){
 void setbit(lint * num, uchar b, bool exp){
   uint pwrd = (powi(2,b));
   if(getbit(*num,b) == exp) return;
-  *num += (*num & pwrd) >> b ? -1 * pwrd : pwrd;
+  *num += ((*num & pwrd) >> b) ? (-1 * pwrd) : (pwrd);
 }
 
 #endif /* BITS_H_ */

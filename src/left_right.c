@@ -46,14 +46,12 @@ char * mulS(char * str, int count){ // string multiply
 
 void printS(char * str, uint * c, uint * lc){
   if(*str < 0){
-
       char tmp = *(str+2);
       *(str+2) = 0;
       printf("%s",str);
       *(str+2) = tmp;
       *c = *c + 1;
       *lc = *lc + 2;
-
   }else if(*str == 27){
       uchar i = 0;
       while( *(str+i) != 109) i++;
@@ -90,8 +88,9 @@ int main(void) {
   };
 
   uint lcounter, rcounter, counter;
-  const uint l_size = lenS(M_left), r_size = lenS(M_right);
-  char f = 0;
+  const uint l_size = lenS(M_left);
+  const uint r_size = lenS(M_right);
+  lint f = 0;
   lcounter = rcounter = counter = 0;
 
 
@@ -114,6 +113,7 @@ int main(void) {
 
 	  }else{
 	      printf(" ");
+	      counter++;
 	  }
 
       }else{		//side = left
@@ -125,10 +125,20 @@ int main(void) {
 
 	  }else{
 	      printf(" ");
+	      counter++;
 	  }
 
       }
 
+      if(counter > 80) counter = 0;
+
+      if(0 <= counter && counter <= 40) {
+	  _nt_setbit(&f,0,0b0);
+      }else{
+	  _nt_setbit(&f,0,0b1);
+      }
+
+      /* debug
       printf("%2d [%u+%u] L(%u/%u) R(%u/%u) side->%s\n",
 	     counter,
 	     getbit((lint)f,1), getbit((lint)f,2),
@@ -136,14 +146,8 @@ int main(void) {
 	     rcounter,r_size,
 	     (getbit((lint)f,0) ? "right" : "left"));
 
-      if(counter >= 80) counter = 0;
-      (0 <= counter && counter <= 40) ? \
-	  setbit((lint*)&f,0,0b0) : setbit((lint*)&f,0,0b1);
-
+      */
   }
-
-  //TODO путчар не годится, надо попробовать принтф(%s) через поинтеры
-  //	 и временную замену одного символа на \0 и обратно
 
   puts("");
 
