@@ -90,7 +90,7 @@ int main(void) {
   uint lcounter, rcounter, counter;
   const uint l_size = lenS(M_left);
   const uint r_size = lenS(M_right);
-  bool f = 0;
+  char f = 0;
   lcounter = rcounter = counter = 0;
 
 
