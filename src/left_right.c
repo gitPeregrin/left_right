@@ -60,12 +60,14 @@ void printS(char * str, uint * c, uint * lc){
       printf("%s", str);
       *(str+i+1) = tmp;
       *lc = *lc + i;
-  }else{
+  }else if(*str){
       char tmp = *(str+1);
       *(str+1) = 0;
       printf("%s",str);
       *(str+1) = tmp;
       *c = *c + 1;
+      *lc = *lc + 1;
+  }else{
       *lc = *lc + 1;
   }
 }
@@ -75,13 +77,8 @@ int main(void) {
   char * left = "Левая часть консоли";
   char * right = "Right ""side"" of console.";
 
-
-
-  // === DRAWING ===
-
   char * M_left = mulS(left,10);
   char * M_right = mulS(right,10);
-
 
   enum {
     LEFT , RIGHT
@@ -91,65 +88,85 @@ int main(void) {
   const uint l_size = lenS(M_left);
   const uint r_size = lenS(M_right);
   char f = 0;
-  lcounter = rcounter = counter = 0;
+  lcounter = rcounter = 0;
+  counter = 1;
+
+  #define lhasch	_nt_getbit(f,1)
+  #define rhasch	_nt_getbit(f,2)
+  #define side		_nt_getbit(f,0)
+  #define isText	_nt_getbit(f,3)
+
+  #define set_isText_false 	_nt_setbit(&f,3,0b0)
+  #define set_isText_true 	_nt_setbit(&f,3,0b1)
+  #define set_side_left 	_nt_setbit(&f,0,0b0)
+  #define set_side_right 	_nt_setbit(&f,0,0b1)
+  #define set_lhasch_false 	_nt_setbit(&f,1,0b0)
+  #define set_lhasch_true 	_nt_setbit(&f,1,0b1)
+  #define set_rhasch_false 	_nt_setbit(&f,2,0b0)
+  #define set_rhasch_true 	_nt_setbit(&f,2,0b1)
 
 
-  setbit((lint*)&f,0,0b0); //side left
-  setbit((lint*)&f,1,0b1);
-  setbit((lint*)&f,2,0b1);
+  set_lhasch_true;
+  set_rhasch_true;
+  set_side_left;
 
-#define lhasch	_nt_getbit(f,1)
-#define rhasch	_nt_getbit(f,2)
-#define side	_nt_getbit(f,0)
+  // === DRAWING ===
+
+  puts("");
 
   while(lhasch || rhasch){
 
-      if(side){		// side = right
-
-	  if(rhasch){	// right side has chars for print
-
-	      printS(&M_right[rcounter], &counter, &rcounter);
-	      if(rcounter >= r_size) _nt_setbit(&f,2,0b0); // right side hasnt chars for print
-
-	  }else{
-	      printf(" ");
-	      counter++;
-	  }
-
-      }else{		//side = left
-
-	  if(lhasch){	// left side has chars for print
-
-	      printS(&M_left[lcounter], &counter, &lcounter);
-	      if(lcounter >= l_size) _nt_setbit(&f,1,0b0); // left side hasnt chars for print
-
-	  }else{
-	      printf(" ");
-	      counter++;
-	  }
-
+      switch(counter){
+	case 1:
+	  set_isText_false;
+	  break;
+	case 2:
+	  set_isText_true;
+	  set_side_left;
+	  break;
+	case 40:
+	  set_isText_false;
+	  set_side_right;
+	  break;
+	case 42:
+	  set_isText_true;
+	  break;
+	case 78:
+	  set_isText_false;
+	  set_side_left;
+	  break;
+	case 80:
+	  counter = 0;
+	  break;
       }
 
-      if(counter > 80) counter = 0;
+      if(isText && lhasch && side == LEFT)
+      	printS(&M_left[lcounter], &counter, &lcounter);
 
-      if(0 <= counter && counter <= 40) {
-	  _nt_setbit(&f,0,0b0);
-      }else{
-	  _nt_setbit(&f,0,0b1);
+      if(isText && rhasch && side == RIGHT)
+	printS(&M_right[rcounter], &counter, &rcounter);
+
+      if(isText && !lhasch && side == LEFT) {
+	  printf(" "); counter++;
       }
 
-      /* debug
-      printf("%2d [%u+%u] L(%u/%u) R(%u/%u) side->%s\n",
-	     counter,
-	     getbit((lint)f,1), getbit((lint)f,2),
-	     lcounter,l_size,
-	     rcounter,r_size,
-	     (getbit((lint)f,0) ? "right" : "left"));
+      if(isText && !rhasch && side == RIGHT) {
+	  printf(" "); counter++;
+      }
 
-      */
+      if(!isText){
+	  printf(" "); counter++;
+      }
+
+      if(lcounter >= l_size)
+	set_lhasch_false;
+
+      if(rcounter >= r_size)
+	set_rhasch_false;
+
   }
 
-  puts("");
+  puts("end");
 
   // === END DRAWING ===
 
